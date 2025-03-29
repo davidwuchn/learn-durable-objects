@@ -16,7 +16,7 @@
   },
   "routes": [
     {
-      "pattern": "excalidraw.backpine.com",
+      "pattern": "<your-domain>",
       "custom_domain": true,
     },
   ],

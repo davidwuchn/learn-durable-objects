@@ -25,7 +25,7 @@
   "migrations": [{ "tag": "v1", "new_classes": ["ExcalidrawWebSocketServer"] }],
   "routes": [
     {
-      "pattern": "excalidraw.backpine.com/api/*",
+      "pattern": "<your-domain>/api/*",
       "zone_name": "backpine.com",
     },
   ],

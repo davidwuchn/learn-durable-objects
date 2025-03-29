@@ -2,8 +2,8 @@
   "name": "npm-ts-workspaces-example",
   "private": true,
   "scripts": {},
-  "devDependencies": {},
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/*"
   ]
 }
