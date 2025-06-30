@@ -16,8 +16,9 @@
   },
   "routes": [
     {
-      "pattern": "<your-domain>",
-      "custom_domain": true,
+      "pattern": "www.mindward.cc",
+      "zone_name": "mindward.cc",
+      "custom_domain": true
     },
   ],
   /**

@@ -7,10 +7,6 @@
   "name": "excalidraw-backend",
   "main": "src/index.ts",
   "compatibility_date": "2025-03-21",
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./public",
-  },
   "observability": {
     "enabled": true,
   },
@@ -25,8 +21,9 @@
   "migrations": [{ "tag": "v1", "new_classes": ["ExcalidrawWebSocketServer"] }],
   "routes": [
     {
-      "pattern": "<your-domain>/api/*",
-      "zone_name": "backpine.com",
+      "pattern": "backend.mindward.cc",
+      "zone_name": "mindward.cc",
+      "custom_domain": true
     },
   ],
   /**

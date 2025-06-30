@@ -10,7 +10,11 @@ const useBufferedWebSocket = (
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    socketRef.current = new WebSocket(`ws://localhost:8787/api/ws/${id}`);
+    const socketUrl =
+      import.meta.env.MODE === "development"
+        ? `ws://localhost:8787/api/ws/${id}`
+        : `wss://backend.mindward.cc/api/ws/${id}`;
+    socketRef.current = new WebSocket(socketUrl);
 
     const socket = socketRef.current;
 

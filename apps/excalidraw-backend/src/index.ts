@@ -8,6 +8,10 @@ const ArraySchema = z.object({
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
+app.get("/", (c) => {
+  return c.text("Hello from Excalidraw Backend!");
+});
+
 app.get("/api/get-elements/:drawingId", async (c) => {
   const drawingId = c.req.param("drawingId");
   const durableObjectId = c.env.DURABLE_OBJECT.idFromName(drawingId);

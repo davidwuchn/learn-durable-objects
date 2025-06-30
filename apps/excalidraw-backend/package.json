@@ -12,7 +12,6 @@
     "@repo/schemas": "workspace:^"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250321.0",
-    "wrangler": "^4.4.0"
+    "wrangler": "^4.22.0"
   }
 }

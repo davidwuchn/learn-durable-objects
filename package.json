@@ -1,9 +1,15 @@
 {
   "name": "npm-ts-workspaces-example",
   "private": true,
-  "scripts": {},
+  "scripts": {
+    "dev": "concurrently \"pnpm --filter excalidraw-backend run dev\" \"pnpm --filter excalidraw-multi-user-state run dev\"",
+    "deploy": "concurrently \"pnpm --filter excalidraw-backend run deploy\" \"pnpm --filter excalidraw-multi-user-state run deploy\""
+  },
   "workspaces": [
     "packages/*",
     "apps/*"
-  ]
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
