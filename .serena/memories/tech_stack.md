@@ -1,0 +1,8 @@
+- pnpm monorepo
+- Cloudflare Workers
+- Cloudflare Durable Objects
+- React
+- TypeScript
+- Hono
+- TanStack Router
+- Vite

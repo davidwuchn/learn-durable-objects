@@ -1,0 +1,1 @@
+This project is a multi-user Excalidraw application. It allows multiple users to collaborate on the same drawing in real-time.
