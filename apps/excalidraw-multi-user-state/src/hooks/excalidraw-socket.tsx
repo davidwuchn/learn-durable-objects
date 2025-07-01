@@ -63,6 +63,15 @@ const useBufferedWebSocket = (
       // This exmaple just saves the entire element list and batches them to
       // the websocket server
       bufferedEvents.current["all-elements"] = event;
+    } else if (event.type === "fileChange") {
+      if (bufferedEvents.current["all-files"]?.type === "fileChange") {
+        bufferedEvents.current["all-files"].data = {
+          ...bufferedEvents.current["all-files"].data,
+          ...event.data,
+        };
+      } else {
+        bufferedEvents.current["all-files"] = event;
+      }
     }
   };
 

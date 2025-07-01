@@ -2,15 +2,18 @@ import { DurableObject } from "cloudflare:workers";
 import {
   BufferEvent,
   ExcalidrawElementChangeSchema,
+  ExcalidrawFileChangeSchema,
 } from "@repo/schemas/events";
 
 export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
   elements: any[] = [];
+  files: Record<string, any> = {};
 
   constructor(ctx: DurableObjectState, env: Cloudflare) {
     super(ctx, env);
     ctx.blockConcurrencyWhile(async () => {
       this.elements = (await ctx.storage.get("elements")) || [];
+      this.files = (await ctx.storage.get("files")) || {};
     });
   }
 
@@ -35,6 +38,16 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
           ExcalidrawElementChangeSchema.parse({
             type: "elementChange",
             data: this.elements,
+            userId: "server",
+          }),
+        ),
+      );
+      ws.send(
+        JSON.stringify(
+          ExcalidrawFileChangeSchema.parse({
+            type: "fileChange",
+            data: this.files,
+            userId: "server",
           }),
         ),
       );
@@ -54,15 +67,19 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
 
   broadcastMsg(ws: WebSocket, message: string | ArrayBuffer) {
     for (const session of this.ctx.getWebSockets()) {
-      if (session !== ws) {
-        session.send(message);
-      }
+      session.send(message);
     }
     if (typeof message === "string") {
       const event = BufferEvent.parse(JSON.parse(message));
       if (event.type === "elementChange") {
         this.elements = event.data;
         this.ctx.storage.put("elements", this.elements);
+      }
+      if (event.type === "fileChange") {
+        // The fileId is the key of the data object
+        const fileId = Object.keys(event.data)[0];
+        this.files = { ...this.files, [fileId]: event.data[fileId] };
+        this.ctx.storage.put("files", this.files);
       }
     }
   }
@@ -71,5 +88,9 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
     return {
       data: this.elements,
     };
+  }
+
+  async getFiles() {
+    return this.files;
   }
 }

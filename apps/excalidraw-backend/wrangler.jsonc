@@ -19,6 +19,12 @@
     ],
   },
   "migrations": [{ "tag": "v1", "new_classes": ["ExcalidrawWebSocketServer"] }],
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "bucket_name": "excalidraw-files"
+    }
+  ],
   "routes": [
     {
       "pattern": "backend.mindward.cc",

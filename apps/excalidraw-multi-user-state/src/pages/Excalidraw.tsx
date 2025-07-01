@@ -1,10 +1,16 @@
 import { Excalidraw } from "@excalidraw/excalidraw";
 import "@excalidraw/excalidraw/index.css";
-import {
+import type {
   ExcalidrawImperativeAPI,
   SocketId,
-} from "@excalidraw/excalidraw/types";
-import { useEffect, useState } from "react";
+  BinaryFiles,
+  BinaryFileData,
+  Collaborator,
+  CollaboratorPointer,
+  ExcalidrawElement,
+  PointerUpdatePayload,
+} from "@excalidraw/excalidraw";
+import { useEffect, useState, useRef } from "react";
 import useBufferedWebSocket from "../hooks/excalidraw-socket";
 import {
   BufferEventType,
@@ -12,12 +18,15 @@ import {
   PointerEvent,
   ExcalidrawElementChangeSchema,
   ExcalidrawElementChange,
+  ExcalidrawFileChangeSchema,
+  ExcalidrawFileChange,
 } from "@repo/schemas/events";
 import { useParams } from "@tanstack/react-router";
 
 function ExcalidrawComponent() {
   const [excalidrawAPI, setExcalidrawAPI] =
     useState<ExcalidrawImperativeAPI | null>(null);
+  const filesRef = useRef<BinaryFiles>({});
   const { id } = useParams({ from: "/excalidraw/$id" });
 
   const [userId, setUserId] = useState<string | null>(null);
@@ -38,39 +47,50 @@ function ExcalidrawComponent() {
   }, []);
 
   useEffect(() => {
-    // Try to get userId from localStorage first
-    const storedId = localStorage.getItem("userId");
-
-    if (storedId) {
-      setUserId(storedId);
-    } else {
-      // Generate a new ID if none exists
-      const id = Math.random().toString(36).substring(2, 15);
-      // Save the ID to localStorage for future use
-      localStorage.setItem("userId", id);
-      setUserId(id);
+    if (excalidrawAPI) {
+      fetch(`/api/get-elements/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          excalidrawAPI.updateScene({
+            elements: data.elements.data,
+          });
+          excalidrawAPI.addFiles(Object.values(data.files) as BinaryFileData[]);
+        });
     }
-  }, []);
+  }, [excalidrawAPI, id]);
 
   const handleMessage = (event: BufferEventType) => {
+    if (event.type === "pointer" && event.data.userId === userId) {
+      return;
+    }
+    if (
+      (event.type === "elementChange" || event.type === "fileChange") &&
+      event.userId === userId
+    ) {
+      return;
+    }
     if (event.type === "pointer") {
       handlePointerEvent(event);
     } else if (event.type === "elementChange") {
       handleElementChangeEvent(event);
+    } else if (event.type === "fileChange") {
+      handleFileChangeEvent(event);
     }
   };
 
   const handlePointerEvent = (event: PointerEvent) => {
     if (excalidrawAPI) {
       const allCollaborators = excalidrawAPI.getAppState().collaborators;
-      const colaborator = new Map(allCollaborators);
+      const colaborator: Map<SocketId, Collaborator> = new Map(
+        allCollaborators,
+      );
       colaborator.set(event.data.userId as SocketId, {
         username: event.data.userId,
         pointer: {
           x: event.data.x,
           y: event.data.y,
           tool: "laser",
-        },
+        } as CollaboratorPointer,
       });
       if (userId) {
         colaborator.delete(userId as SocketId);
@@ -87,16 +107,28 @@ function ExcalidrawComponent() {
       excalidrawAPI.updateScene({
         elements: event.data,
       });
-      console.log("Element change received:", event.data);
+    }
+  };
+
+  const handleFileChangeEvent = (event: ExcalidrawFileChange) => {
+    if (excalidrawAPI) {
+      const fileData = Object.values(event.data).filter(
+        (item) => typeof item !== "string",
+      );
+      excalidrawAPI.addFiles(fileData as BinaryFileData[]);
     }
   };
 
   const sendEventViaSocket = useBufferedWebSocket(handleMessage, id);
 
+  if (!userId) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="canvas" style={{ height: "800px", width: "100%" }}>
       <Excalidraw
-        onPointerUpdate={(payload) => {
+        onPointerUpdate={(payload: PointerUpdatePayload) => {
           sendEventViaSocket(
             PointerEventSchema.parse({
               type: "pointer",
@@ -108,17 +140,70 @@ function ExcalidrawComponent() {
             }),
           );
         }}
-        onPointerUp={() => {
-          if (excalidrawAPI) {
+        onChange={(
+          elements: readonly ExcalidrawElement[],
+          appState,
+          files: BinaryFiles,
+        ) => {
+          const newFileIds = Object.keys(files);
+          const oldFileIds = Object.keys(filesRef.current);
+
+          if (newFileIds.length > oldFileIds.length) {
+            const newFiles: BinaryFiles = {};
+            newFileIds.forEach((id) => {
+              if (!oldFileIds.includes(id)) {
+                newFiles[id] = files[id];
+              }
+            });
+            if (Object.keys(newFiles).length > 0) {
+              const file = Object.values(newFiles)[0] as BinaryFileData;
+              (async () => {
+                await fetch("/api/files/upload", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    id: file.id,
+                    dataURL: file.dataURL,
+                    mimeType: file.mimeType,
+                  }),
+                });
+                sendEventViaSocket(
+                  ExcalidrawFileChangeSchema.parse({
+                    type: "fileChange",
+                    data: {
+                      [file.id]: file,
+                    },
+                    userId: userId,
+                  }),
+                );
+                sendEventViaSocket(
+                  ExcalidrawElementChangeSchema.parse({
+                    type: "elementChange",
+                    data: elements,
+                    userId,
+                  }),
+                );
+              })();
+            }
+          } else {
             sendEventViaSocket(
               ExcalidrawElementChangeSchema.parse({
                 type: "elementChange",
-                data: excalidrawAPI.getSceneElements(),
+                data: elements,
+                userId,
               }),
             );
           }
+          filesRef.current = files;
         }}
-        excalidrawAPI={(api) => setExcalidrawAPI(api)}
+        excalidrawAPI={(api: ExcalidrawImperativeAPI) => {
+          setExcalidrawAPI(api);
+          if (api) {
+            filesRef.current = api.getFiles();
+          }
+        }}
       />
     </div>
   );
