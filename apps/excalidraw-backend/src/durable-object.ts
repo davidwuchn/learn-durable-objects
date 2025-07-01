@@ -66,11 +66,6 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
   }
 
   broadcastMsg(ws: WebSocket, message: string | ArrayBuffer) {
-    for (const session of this.ctx.getWebSockets()) {
-      if (session !== ws) {
-        session.send(message);
-      }
-    }
     if (typeof message === "string") {
       const event = BufferEvent.parse(JSON.parse(message));
       if (event.type === "elementChange") {
@@ -82,6 +77,12 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
         const fileId = Object.keys(event.data)[0];
         this.files = { ...this.files, [fileId]: event.data[fileId] };
         this.ctx.storage.put("files", this.files);
+      }
+    }
+
+    for (const session of this.ctx.getWebSockets()) {
+      if (session !== ws) {
+        session.send(message);
       }
     }
   }

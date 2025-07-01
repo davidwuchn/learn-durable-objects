@@ -23,7 +23,8 @@ const useBufferedWebSocket = (
     if (socket) {
       socket.onmessage = (event) => {
         console.log("Received event", event);
-        handleMessage(BufferEvent.parse(JSON.parse(event.data)));
+        const parsedEvent = BufferEvent.parse(JSON.parse(event.data));
+        handleMessage(parsedEvent);
       };
       socket.onopen = () => {
         console.log("WebSocket opened");
@@ -75,7 +76,13 @@ const useBufferedWebSocket = (
     }
   };
 
-  return sendEvent;
+  const handlePointerUp = (event: BufferEventType) => {
+    if (event.type === "elementChange") {
+      bufferedEvents.current["all-elements"] = event;
+    }
+  };
+
+  return { sendEvent, handlePointerUp };
 };
 
 export default useBufferedWebSocket;

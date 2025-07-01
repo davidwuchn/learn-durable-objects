@@ -119,7 +119,10 @@ function ExcalidrawComponent() {
     }
   };
 
-  const sendEventViaSocket = useBufferedWebSocket(handleMessage, id);
+  const { sendEvent, handlePointerUp } = useBufferedWebSocket(
+    handleMessage,
+    id,
+  );
 
   if (!userId) {
     return <div>Loading...</div>;
@@ -129,7 +132,7 @@ function ExcalidrawComponent() {
     <div className="canvas" style={{ height: "800px", width: "100%" }}>
       <Excalidraw
         onPointerUpdate={(payload: PointerUpdatePayload) => {
-          sendEventViaSocket(
+          sendEvent(
             PointerEventSchema.parse({
               type: "pointer",
               data: {
@@ -139,6 +142,17 @@ function ExcalidrawComponent() {
               },
             }),
           );
+        }}
+        onPointerUp={() => {
+          if (excalidrawAPI) {
+            handlePointerUp(
+              ExcalidrawElementChangeSchema.parse({
+                type: "elementChange",
+                data: excalidrawAPI.getSceneElements(),
+                userId,
+              }),
+            );
+          }
         }}
         onChange={(
           elements: readonly ExcalidrawElement[],
@@ -169,7 +183,7 @@ function ExcalidrawComponent() {
                     mimeType: file.mimeType,
                   }),
                 });
-                sendEventViaSocket(
+                sendEvent(
                   ExcalidrawFileChangeSchema.parse({
                     type: "fileChange",
                     data: {
@@ -178,23 +192,8 @@ function ExcalidrawComponent() {
                     userId: userId,
                   }),
                 );
-                sendEventViaSocket(
-                  ExcalidrawElementChangeSchema.parse({
-                    type: "elementChange",
-                    data: elements,
-                    userId,
-                  }),
-                );
               })();
             }
-          } else {
-            sendEventViaSocket(
-              ExcalidrawElementChangeSchema.parse({
-                type: "elementChange",
-                data: elements,
-                userId,
-              }),
-            );
           }
           filesRef.current = files;
         }}
