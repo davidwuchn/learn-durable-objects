@@ -67,7 +67,9 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
 
   broadcastMsg(ws: WebSocket, message: string | ArrayBuffer) {
     for (const session of this.ctx.getWebSockets()) {
-      session.send(message);
+      if (session !== ws) {
+        session.send(message);
+      }
     }
     if (typeof message === "string") {
       const event = BufferEvent.parse(JSON.parse(message));

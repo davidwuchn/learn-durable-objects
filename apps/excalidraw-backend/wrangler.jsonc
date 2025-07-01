@@ -27,9 +27,8 @@
   ],
   "routes": [
     {
-      "pattern": "backend.mindward.cc",
-      "zone_name": "mindward.cc",
-      "custom_domain": true
+      "pattern": "backend.mindward.cc/*",
+      "zone_name": "mindward.cc"
     },
   ],
   /**
