@@ -1,8 +1,4 @@
-- pnpm monorepo
-- Cloudflare Workers
-- Cloudflare Durable Objects
-- React
-- TypeScript
-- Hono
-- TanStack Router
-- Vite
+- **Frontend:** React, Excalidraw, Vite, TypeScript
+- **Backend:** Cloudflare Workers, Durable Objects, Hono, TypeScript
+- **Package Manager:** pnpm with workspaces
+- **Shared Schemas:** Zod for type-safe communication between frontend and backend.

@@ -1,4 +1,5 @@
-The project is a pnpm monorepo with two main packages:
+The project is a pnpm monorepo with the following structure:
 
-- `apps/excalidraw-backend`: A Cloudflare Worker that handles the backend logic. It uses Durable Objects to store the state of each drawing and to broadcast changes to all connected clients.
-- `apps/excalidraw-multi-user-state`: A React application that provides the frontend for the Excalidraw editor. It uses a WebSocket to communicate with the backend and to receive real-time updates.
+- `apps/excalidraw-backend`: The backend service built with Cloudflare Workers and Durable Objects.
+- `apps/excalidraw-multi-user-state`: The frontend application built with React and Excalidraw.
+- `packages/schemas`: A shared package for Zod schemas to ensure type safety between the frontend and backend.

@@ -1,1 +1,1 @@
-This project is a multi-user Excalidraw application. It allows multiple users to collaborate on the same drawing in real-time.
+This project is a real-time collaborative drawing application built with Excalidraw, WebSockets, and Cloudflare Durable Objects. It allows multiple users to draw together simultaneously, with real-time updates for cursor movements and drawing changes. The project was created by following a video tutorial.
