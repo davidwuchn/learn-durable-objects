@@ -18,7 +18,13 @@
       },
     ],
   },
-  "migrations": [{ "tag": "v1", "new_classes": ["ExcalidrawWebSocketServer"] }],
+  "migrations": [
+    {
+      "tag": "v3",
+      "new_sqlite_classes": ["ExcalidrawWebSocketServer"],
+      "deleted_classes": ["YDurableObjects"]
+    }
+  ],
   "r2_buckets": [
     {
       "binding": "R2_BUCKET",
