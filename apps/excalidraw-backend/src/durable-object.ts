@@ -1,3 +1,4 @@
+import DOMPurify from "dompurify";
 import { DurableObject } from "cloudflare:workers";
 import {
   BufferEvent,
@@ -66,23 +67,40 @@ export class ExcalidrawWebSocketServer extends DurableObject<Cloudflare> {
   }
 
   broadcastMsg(ws: WebSocket, message: string | ArrayBuffer) {
-    if (typeof message === "string") {
-      const event = BufferEvent.parse(JSON.parse(message));
-      if (event.type === "elementChange") {
-        this.elements = event.data;
-        this.ctx.storage.put("elements", this.elements);
+    if (typeof message !== "string") {
+      for (const session of this.ctx.getWebSockets()) {
+        if (session !== ws) {
+          session.send(message);
+        }
       }
-      if (event.type === "fileChange") {
-        // The fileId is the key of the data object
-        const fileId = Object.keys(event.data)[0];
-        this.files = { ...this.files, [fileId]: event.data[fileId] };
-        this.ctx.storage.put("files", this.files);
-      }
+      return;
     }
+
+    const event = BufferEvent.parse(JSON.parse(message));
+
+    if (event.type === "elementChange") {
+      const sanitizedElements = event.data.map((element: any) => {
+        if (element.type === "text" && element.text) {
+          return { ...element, text: DOMPurify.sanitize(element.text) };
+        }
+        return element;
+      });
+      event.data = sanitizedElements;
+      this.elements = event.data;
+      this.ctx.storage.put("elements", this.elements);
+    }
+
+    if (event.type === "fileChange") {
+      const fileId = Object.keys(event.data)[0];
+      this.files = { ...this.files, [fileId]: event.data[fileId] };
+      this.ctx.storage.put("files", this.files);
+    }
+
+    const sanitizedMessage = JSON.stringify(event);
 
     for (const session of this.ctx.getWebSockets()) {
       if (session !== ws) {
-        session.send(message);
+        session.send(sanitizedMessage);
       }
     }
   }
