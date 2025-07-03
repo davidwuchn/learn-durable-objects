@@ -1,5 +1,5 @@
-The project is a pnpm monorepo with the following structure:
+The project is a monorepo with the following structure:
 
-- `apps/excalidraw-backend`: The backend service built with Cloudflare Workers and Durable Objects.
-- `apps/excalidraw-multi-user-state`: The frontend application built with React and Excalidraw.
-- `packages/schemas`: A shared package for Zod schemas to ensure type safety between the frontend and backend.
+- `apps/excalidraw-backend`: The Cloudflare Worker backend, handling API requests, WebSocket connections, and file storage.
+- `apps/excalidraw-multi-user-state`: The React-based frontend application.
+- `packages/schemas`: Contains the data schemas used throughout the application.

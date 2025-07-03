@@ -1,4 +1,5 @@
-- **Frontend:** React, Excalidraw, Vite, TypeScript
-- **Backend:** Cloudflare Workers, Durable Objects, Hono, TypeScript
-- **Package Manager:** pnpm with workspaces
-- **Shared Schemas:** Zod for type-safe communication between frontend and backend.
+- **Frontend:** React, TypeScript, Vite
+- **Backend:** Cloudflare Workers, Hono, Durable Objects
+- **Monorepo:** pnpm workspaces
+- **Schema:** Zod
+- **Linting:** ESLint

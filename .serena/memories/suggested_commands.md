@@ -1,19 +1,4 @@
-### General
-
-- `pnpm install`: Install all dependencies across the workspace.
-- `pnpm dev`: Run both the frontend and backend development servers concurrently.
-- `pnpm deploy`: Deploy both the frontend and backend to Cloudflare.
-
-### Backend (`excalidraw-backend`)
-
-- `pnpm --filter excalidraw-backend run cf-typegen`: Generate Cloudflare types.
-- `pnpm --filter excalidraw-backend run dev`: Start the development server.
-- `pnpm --filter excalidraw-backend run deploy`: Deploy to Cloudflare Workers.
-
-### Frontend (`excalidraw-multi-user-state`)
-
-- `pnpm --filter excalidraw-multi-user-state run cf-typegen`: Generate Cloudflare types.
-- `pnpm --filter excalidraw-multi-user-state run dev`: Start the development server.
-- `pnpm --filter excalidraw-multi-user-state run build`: Build the application.
-- `pnpm --filter excalidraw-multi-user-state run preview`: Preview the built application.
-- `pnpm --filter excalidraw-multi-user-state run deploy`: Deploy to Cloudflare Pages.
+- `pnpm dev`: Starts the development server for both the frontend and backend.
+- `pnpm deploy`: Deploys the application to Cloudflare.
+- `pnpm --filter excalidraw-multi-user-state lint`: Lints the frontend code using ESLint.
+- `pnpm --filter excalidraw-backend cf-typegen`: Generates TypeScript types for the Cloudflare bindings.
