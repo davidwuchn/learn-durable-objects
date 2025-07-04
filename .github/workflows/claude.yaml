@@ -43,11 +43,7 @@ jobs:
       "models": [
         "anthropic/claude-sonnet-4",
         "anthropic/claude-3.5-sonnet",
-        "anthropic/claude-3.7-sonnet:thinking",
-        "microsoft/mai-ds-r1:free",
-        "deepseek/deepseek-r1-0528",
-        "qwen/qwen-2.5-7b-instruct",
-        "qwen/qwen2.5-coder-7b-instruct"
+        "anthropic/claude-3.7-sonnet:thinking"
       ]
     },
     {
@@ -74,7 +70,7 @@ jobs:
   ],
   "Router": {
     "default": "deepseek,deepseek-chat",
-    "background": "openrouter,qwen/qwen2.5-coder-7b-instruct",
+    "background": "gemini,gemini-2.5-flash",
     "think": "deepseek,deepseek-reasoner",
     "longContext": "gemini,gemini-2.5-pro"
   }
